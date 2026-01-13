@@ -8,6 +8,7 @@
 (function() {
   'use strict';
 
+
   /**
    * قائمة القطاعات المتاحة في النموذج.
    */
@@ -417,13 +418,13 @@
     win.print();
   }
 
-  // ربط الأحداث عند تحميل الصفحة
-  document.addEventListener('DOMContentLoaded', function() {
-    populateLists();
-    buildEvaluationTable();
-    document.getElementById('sector').addEventListener('change', updateSectorData);
-    document.getElementById('saveButton').addEventListener('click', saveRecord);
-    document.getElementById('exportButton').addEventListener('click', exportToExcel);
-    document.getElementById('printButton').addEventListener('click', printReport);
-  });
+  // تهيئة النموذج مباشرة بعد تحميل السكربت بدلاً من انتظار DOMContentLoaded.
+  // بما أن السكربت مُضمّن في نهاية ملف HTML، فإن العناصر تكون متاحة عند التشغيل.
+  populateLists();
+  buildEvaluationTable();
+  // ربط الأحداث لعناصر النموذج
+  document.getElementById('sector').addEventListener('change', updateSectorData);
+  document.getElementById('saveButton').addEventListener('click', saveRecord);
+  document.getElementById('exportButton').addEventListener('click', exportToExcel);
+  document.getElementById('printButton').addEventListener('click', printReport);
 })();
