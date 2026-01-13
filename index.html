@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>التقرير اليومي لمقدم خدمة دعم التميز المدرسي-٣</title>
+  <!-- ملف التنسيق الرئيسي -->
+  <link rel="stylesheet" href="style.css">
+  <!-- مكتبة SheetJS للتعامل مع ملفات Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <h1>التقرير اليومي لمقدم خدمة دعم التميز المدرسي-٣</h1>
+  <!-- المعلومات العامة -->
+  <div class="section">
+    <h2>المعلومات العامة</h2>
+    <div class="form-grid">
+      <label>القطاع:
+        <input id="sector" type="text" placeholder="اكتب القطاع">
+      </label>
+      <label>التاريخ:
+        <input id="date" type="date">
+      </label>
+      <label>اليوم:
+        <input id="day" type="text" placeholder="اليوم">
+      </label>
+      <label>الأسبوع:
+        <input id="week" type="text" placeholder="رقم الأسبوع">
+      </label>
+      <label>المشرف:
+        <input id="supervisor" type="text" placeholder="اسم المشرف">
+      </label>
+      <label>المهمة حسب خطة المشرف التربوي:
+        <input id="mission" type="text" placeholder="المهمة">
+      </label>
+      <label>المدرسة التي سيقدم لها الخدمة:
+        <input id="school" type="text" placeholder="اسم المدرسة">
+      </label>
+      <label>نوع الخدمة:
+        <input id="serviceType" type="text" placeholder="نوع الخدمة">
+      </label>
+      <label>نوع المدرسة:
+        <input id="schoolType" type="text" placeholder="نوع المدرسة">
+      </label>
+      <label>المرحلة الدراسية:
+        <input id="educationStage" type="text" placeholder="المرحلة الدراسية">
+      </label>
+      <label>المدرسة الإضافية:
+        <input id="additionalSchool" type="text" placeholder="المدرسة الإضافية">
+      </label>
+      <label>اسم المدرسة المكلف بتقديم الخدمة لها:
+        <input id="assignedSchoolName" type="text" placeholder="اسم المدرسة المكلفة">
+      </label>
+      <label>تفعيل منصة مدرستي:
+        <select id="madrasati">
+          <option value="">اختر</option>
+          <option value="yes">نعم</option>
+          <option value="no">لا</option>
+        </select>
+      </label>
+      <label>وقت الحضور:
+        <input id="attendanceTime" type="time">
+      </label>
+      <label>وقت الانصراف:
+        <input id="departureTime" type="time">
+      </label>
+    </div>
+  </div>
+  <!-- تقييم المجالات -->
+  <div class="section">
+    <h2>تقييم المجالات</h2>
+    <table id="evaluationTable"></table>
+  </div>
+  <!-- تفاصيل إضافية -->
+  <div class="section">
+    <h2>تفاصيل أخرى</h2>
+    <label>الخبرات الاشرافية:
+      <textarea id="supervisoryExperiences" rows="3" placeholder="اكتب الخبرات الاشرافية"></textarea>
+    </label>
+    <label>المبادرات المنفذة:
+      <textarea id="initiatives" rows="3" placeholder="اكتب المبادرات المنفذة"></textarea>
+    </label>
+    <label>التوصيات التي تقدمت:
+      <textarea id="recommendations" rows="3" placeholder="اكتب التوصيات"></textarea>
+    </label>
+    <label>المقترحات للفريق التنفيذي:
+      <textarea id="proposals" rows="3" placeholder="اكتب المقترحات"></textarea>
+    </label>
+    <label>المجالات الدعم:
+      <textarea id="supportAreas" rows="3" placeholder="اكتب مجالات الدعم"></textarea>
+    </label>
+    <label>أبرز التحديات:
+      <textarea id="challenges" rows="3" placeholder="اكتب أبرز التحديات"></textarea>
+    </label>
+    <label>أبرز المعالجات:
+      <textarea id="remedies" rows="3" placeholder="اكتب أبرز المعالجات"></textarea>
+    </label>
+    <label>تقييم الذاتي:
+      <select id="selfEvaluation">
+        <option value="">اختر</option>
+        <option value="1">ضعيف</option>
+        <option value="2">متوسط</option>
+        <option value="3">متميز</option>
+      </select>
+    </label>
+    <label>وجهة نظرك:
+      <textarea id="yourView" rows="3" placeholder="اكتب رأيك"></textarea>
+    </label>
+    <label>تمكين المدرسة:
+      <textarea id="empowerment" rows="3" placeholder="كيف يمكن تمكين المدرسة"></textarea>
+    </label>
+  </div>
+  <!-- أزرار التحكم -->
+  <div class="buttons">
+    <button id="saveButton">حفظ</button>
+    <button id="exportButton">تصدير إلى&nbsp;Excel</button>
+    <button id="printButton">طباعة التقرير</button>
+  </div>
+  <!-- سكربت المنطق -->
+  <script src="script.js"></script>
+</body>
+</html>
