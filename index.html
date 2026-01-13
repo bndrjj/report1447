@@ -3,99 +3,112 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>التقرير اليومي لمقدم خدمة دعم التميز المدرسي-٣</title>
-  <!-- ملف التنسيق الرئيسي -->
+  <title>تقرير المتابعة الأسبوعي للمشرف التربوي – دعم التميز المدرسي</title>
+  <!-- استيراد الخط Tajawal من Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- ملف التنسيق -->
   <link rel="stylesheet" href="style.css">
   <!-- مكتبة SheetJS للتعامل مع ملفات Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <h1>التقرير اليومي لمقدم خدمة دعم التميز المدرسي-٣</h1>
-  <!-- المعلومات العامة -->
+  <h1>تقرير المتابعة الأسبوعي للمشرف التربوي</h1>
+
+  <!-- القسم الأول: البيانات الأساسية -->
   <div class="section">
-    <h2>المعلومات العامة</h2>
+    <h2>القسم الأول: البيانات الأساسية</h2>
     <div class="form-grid">
       <label>القطاع:
-        <input id="sector" type="text" placeholder="اكتب القطاع">
+        <select id="sector" required>
+          <option value="">اختر القطاع</option>
+        </select>
+      </label>
+      <label>الأسبوع الدراسي:
+        <select id="week" required>
+          <option value="">اختر الأسبوع</option>
+        </select>
       </label>
       <label>التاريخ:
-        <input id="date" type="date">
-      </label>
-      <label>اليوم:
-        <input id="day" type="text" placeholder="اليوم">
-      </label>
-      <label>الأسبوع:
-        <input id="week" type="text" placeholder="رقم الأسبوع">
-      </label>
-      <label>المشرف:
-        <input id="supervisor" type="text" placeholder="اسم المشرف">
+        <input id="date" type="date" required>
       </label>
       <label>المهمة حسب خطة المشرف التربوي:
-        <input id="mission" type="text" placeholder="المهمة">
+        <input id="mission" type="text" placeholder="المهمة" required>
       </label>
-      <label>المدرسة التي سيقدم لها الخدمة:
-        <input id="school" type="text" placeholder="اسم المدرسة">
+      <label>اسم المشرف/ة التربوي/ة:
+        <select id="supervisor" required>
+          <option value="">اختر المشرف/ة</option>
+        </select>
       </label>
-      <label>نوع الخدمة:
-        <input id="serviceType" type="text" placeholder="نوع الخدمة">
-      </label>
-      <label>نوع المدرسة:
-        <input id="schoolType" type="text" placeholder="نوع المدرسة">
+      <label>النوع:
+        <select id="gender" required>
+          <option value="">اختر النوع</option>
+          <option value="بنين">بنين</option>
+          <option value="بنات">بنات</option>
+        </select>
       </label>
       <label>المرحلة الدراسية:
-        <input id="educationStage" type="text" placeholder="المرحلة الدراسية">
-      </label>
-      <label>المدرسة الإضافية:
-        <input id="additionalSchool" type="text" placeholder="المدرسة الإضافية">
+        <select id="educationStage" required>
+          <option value="">اختر المرحلة</option>
+          <option value="رياض أطفال">رياض أطفال</option>
+          <option value="ابتدائي">ابتدائي</option>
+          <option value="متوسط">متوسط</option>
+          <option value="ثانوي">ثانوي</option>
+        </select>
       </label>
       <label>اسم المدرسة المكلف بتقديم الخدمة لها:
-        <input id="assignedSchoolName" type="text" placeholder="اسم المدرسة المكلفة">
+        <select id="assignedSchool" required>
+          <option value="">اختر المدرسة</option>
+        </select>
+      </label>
+      <label>اسم المدرسة الإضافية:
+        <select id="additionalSchool" required>
+          <option value="">اختر المدرسة الإضافية</option>
+        </select>
       </label>
       <label>تفعيل منصة مدرستي:
-        <select id="madrasati">
+        <select id="madrasati" required>
           <option value="">اختر</option>
-          <option value="yes">نعم</option>
-          <option value="no">لا</option>
+          <option value="نعم">نعم</option>
+          <option value="لا">لا</option>
         </select>
       </label>
       <label>وقت الحضور:
-        <input id="attendanceTime" type="time">
+        <input id="attendanceTime" type="time" required>
       </label>
       <label>وقت الانصراف:
-        <input id="departureTime" type="time">
+        <input id="departureTime" type="time" required>
       </label>
     </div>
   </div>
-  <!-- تقييم المجالات -->
+
+  <!-- القسم الثاني: المجالات الرئيسة للدعم والإجراءات المنفذة -->
   <div class="section">
-    <h2>تقييم المجالات</h2>
+    <h2>القسم الثاني: المجالات الرئيسة للدعم والإجراءات المنفذة في كل مجال</h2>
     <table id="evaluationTable"></table>
   </div>
-  <!-- تفاصيل إضافية -->
+
+  <!-- تفاصيل أخرى -->
   <div class="section">
     <h2>تفاصيل أخرى</h2>
-    <label>الخبرات الاشرافية:
-      <textarea id="supervisoryExperiences" rows="3" placeholder="اكتب الخبرات الاشرافية"></textarea>
-    </label>
     <label>المبادرات المنفذة:
-      <textarea id="initiatives" rows="3" placeholder="اكتب المبادرات المنفذة"></textarea>
+      <textarea id="initiatives" rows="3" placeholder="أدخل المبادرات المنفذة"></textarea>
     </label>
-    <label>التوصيات التي تقدمت:
-      <textarea id="recommendations" rows="3" placeholder="اكتب التوصيات"></textarea>
+    <label>التوصيات:
+      <textarea id="recommendations" rows="3" placeholder="أدخل التوصيات"></textarea>
     </label>
     <label>المقترحات للفريق التنفيذي:
-      <textarea id="proposals" rows="3" placeholder="اكتب المقترحات"></textarea>
+      <textarea id="proposals" rows="3" placeholder="أدخل المقترحات"></textarea>
     </label>
-    <label>المجالات الدعم:
-      <textarea id="supportAreas" rows="3" placeholder="اكتب مجالات الدعم"></textarea>
+    <label>مجالات الدعم:
+      <textarea id="supportAreas" rows="3" placeholder="أدخل مجالات الدعم"></textarea>
     </label>
     <label>أبرز التحديات:
-      <textarea id="challenges" rows="3" placeholder="اكتب أبرز التحديات"></textarea>
+      <textarea id="challenges" rows="3" placeholder="أبرز التحديات"></textarea>
     </label>
     <label>أبرز المعالجات:
-      <textarea id="remedies" rows="3" placeholder="اكتب أبرز المعالجات"></textarea>
+      <textarea id="remedies" rows="3" placeholder="أبرز المعالجات"></textarea>
     </label>
-    <label>تقييم الذاتي:
+    <label>التقييم الذاتي:
       <select id="selfEvaluation">
         <option value="">اختر</option>
         <option value="1">ضعيف</option>
@@ -110,13 +123,15 @@
       <textarea id="empowerment" rows="3" placeholder="كيف يمكن تمكين المدرسة"></textarea>
     </label>
   </div>
+
   <!-- أزرار التحكم -->
   <div class="buttons">
     <button id="saveButton">حفظ</button>
-    <button id="exportButton">تصدير إلى&nbsp;Excel</button>
+    <button id="exportButton">تصدير إلى Excel</button>
     <button id="printButton">طباعة التقرير</button>
   </div>
-  <!-- سكربت المنطق -->
+
+  <!-- السكربت -->
   <script src="script.js"></script>
 </body>
 </html>

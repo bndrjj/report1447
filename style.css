@@ -1,138 +1,100 @@
-/*
- * تنسيق مخصص للتقرير اليومي لمقدم خدمة دعم التميز المدرسي.
- * يعتمد على نفس الألوان والتخطيط المستخدم في استمارة زيارة المعلم.
- */
+/* أسلوب التصميم لنموذج تقرير المتابعة الأسبوعي */
 
 body {
+  font-family: 'Tajawal', Arial, sans-serif;
   margin: 0;
   padding: 0;
-  font-family: "Tajawal", Arial, sans-serif;
-  background-color: #f9fbfa;
-  color: #123b37;
-  direction: rtl;
-  line-height: 1.6;
+  background-color: #f5f5f5;
+  color: #333;
 }
 
 h1 {
+  background: linear-gradient(135deg, #03787c, #014446);
+  color: #fff;
+  padding: 20px;
+  margin: 0;
   text-align: center;
-  color: #0f7a66;
-  margin-top: 20px;
+  font-size: 1.6rem;
 }
 
 .section {
+  background: #fff;
   margin: 20px auto;
-  padding: 15px;
-  max-width: 1000px;
-  background-color: #ffffff;
-  border: 1px solid #e6efec;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 900px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .section h2 {
   margin-top: 0;
+  color: #014446;
+  font-size: 1.2rem;
   margin-bottom: 10px;
-  color: #0c594e;
-  font-size: 1.2em;
 }
 
-/* تخطيط الشبكة للحقول */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
 label {
-  font-weight: bold;
   display: flex;
   flex-direction: column;
-  font-size: 0.9em;
+  font-weight: 500;
+  color: #014446;
 }
 
-input[type="text"],
-input[type="date"],
-input[type="time"],
-select {
-  height: 34px;
-  border: 1px solid #cfe1dd;
-  border-radius: 6px;
-  padding: 0 8px;
-  font-size: 0.9em;
-  background-color: #ffffff;
-  color: #123b37;
+input, select, textarea {
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
 }
 
 textarea {
-  border: 1px solid #cfe1dd;
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 0.9em;
   resize: vertical;
-  min-height: 80px;
 }
 
-/* تنسيق الأزرار */
-.buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 40px;
-  margin-top: 20px;
-}
-
-button {
-  padding: 10px 22px;
-  background-color: #0f7a66;
-  border: none;
-  color: #ffffff;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 0.9em;
-  transition: background-color 0.15s;
-}
-
-button:hover {
-  background-color: #0c594e;
-}
-
-/* جدول التقييم للمجالات */
-#evaluationTable {
+table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  font-size: 0.9em;
 }
 
-#evaluationTable thead {
-  background-color: #e8f4f1;
-}
-
-#evaluationTable th,
-#evaluationTable td {
-  border: 1px solid #e6efec;
+th, td {
+  border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
+  font-size: 0.9rem;
 }
 
-#evaluationTable tr:nth-child(even) {
-  background-color: #f7fdfa;
+th {
+  background-color: #eaf4f3;
+  color: #014446;
 }
 
-.option-buttons button {
-  margin: 0 2px;
-  padding: 4px 8px;
-  font-size: 0.8em;
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 30px 0;
+}
+
+button {
+  background-color: #03787c;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1rem;
   border-radius: 4px;
-  border: 1px solid #cfe1dd;
-  background-color: #ffffff;
-  color: #123b37;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
-.option-buttons button.selected {
-  background-color: #0f7a66;
-  color: #ffffff;
-  border-color: #0f7a66;
+button:hover {
+  background-color: #025557;
 }

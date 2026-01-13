@@ -1,237 +1,408 @@
 /*
- * سكربت جافا سكربت للتقرير اليومي لمقدم خدمة دعم التميز المدرسي.
- * يقوم ببناء جدول التقييم للمجالات، وحفظ السجل في localStorage، وتصديره إلى Excel، وطباعة تقرير.
+ * سكربت تقرير المتابعة الأسبوعي للمشرف التربوي.
+ * يقوم هذا الملف ببناء جدول تقييم المجالات، تعبئة قوائم القطاعات
+ * والأسبوع، وتغيير قوائم المشرفين والمدارس بناءً على القطاع المختار.
+ * يسمح بحفظ السجلات في التخزين المحلي، وتصديرها إلى Excel، وطباعة تقرير واحد.
  */
 
 (function() {
-  // المجالات المطلوبة في التقرير اليومي
-  const domains = [
-    { name: 'مجال نواتج التعلم', items: ['نواتج التعلم'] },
-    { name: 'مجال التدريس', items: ['التدريس'] },
-    { name: 'مجال النشاط الطلابي', items: ['النشاط الطلابي'] },
-    { name: 'مجال التوجيه الطلابي', items: ['التوجيه الطلابي'] }
+  'use strict';
+
+  /**
+   * قائمة القطاعات المتاحة في النموذج.
+   */
+  const sectors = [
+    'الدمام',
+    'الخبر',
+    'القطيف',
+    'رأس تنورة',
+    'الجبيل',
+    'بقيق',
+    'النعيرية',
+    'قرية العليا',
+    'الخفجي',
+    'حفر الباطن'
   ];
+
+  /**
+   * قائمة الأسابيع. يمكن تعديلها لإضافة أسابيع أخرى.
+   */
+  const weeks = [
+    'الأسبوع التاسع عشر - ٢٠٢٦/٠١/٠٤ إلى ٢٠٢٦/٠١/٠٨',
+    'الأسبوع العشرون - ٢٠٢٦/٠١/١١ إلى ٢٠٢٦/٠١/١٥',
+    'الأسبوع الحادي والعشرون - ٢٠٢٦/٠١/١٨ إلى ٢٠٢٦/٠١/٢٢'
+  ];
+
+  /**
+   * بيانات القطاع: لكل قطاع، مصفوفة أسماء المشرفين والمدارس الأساسية والإضافية.
+   * تم إدراج بعض الأسماء كمثال لقطاع الدمام. ينبغي على المستخدم إضافة باقي الأسماء
+   * والمدارس لبقية القطاعات إذا لزم الأمر.
+   */
+  const sectorData = {
+    'الدمام': {
+      supervisors: [
+        'بندر بن سعيد القحطاني',
+        'فهد بن محمد الشهري',
+        'فائز بن علي الغامدي',
+        'جهاد بن محمد آل طلحة',
+        'مبارك بن فهد المرير'
+      ],
+      assignedSchools: [
+        'مدرسة ابن كثير الابتدائية',
+        'مدرسة النور المتوسطة',
+        'مدرسة الفيصلية الثانوية'
+      ],
+      additionalSchools: [
+        'مجمع منذر بن محمد',
+        'مدرسة عبد الله بن عباس'
+      ]
+    },
+    'الخبر': {
+      supervisors: ['أحمد بن علي الغامدي', 'سعود بن محمد الدوسري'],
+      assignedSchools: ['مدرسة الخبر الابتدائية', 'مدرسة النخبة الثانوية'],
+      additionalSchools: ['مدرسة الخبر المتوسطة']
+    },
+    'القطيف': {
+      supervisors: ['محمد بن خالد الزهراني', 'علي بن عبدالله الشمري'],
+      assignedSchools: ['مدرسة القطيف الابتدائية'],
+      additionalSchools: ['مدرسة سيهات المتوسطة']
+    },
+    'رأس تنورة': {
+      supervisors: ['سلمان بن ناصر القحطاني'],
+      assignedSchools: ['مدرسة رأس تنورة الثانوية'],
+      additionalSchools: ['مدرسة رحيمة الابتدائية']
+    },
+    'الجبيل': {
+      supervisors: ['خالد بن عبدالله البوعينين'],
+      assignedSchools: ['مدرسة الجبيل الابتدائية'],
+      additionalSchools: ['مدرسة الجبيل المتوسطة']
+    },
+    'بقيق': {
+      supervisors: ['ناصر بن محمد الدوسري'],
+      assignedSchools: ['مدرسة بقيق الابتدائية'],
+      additionalSchools: ['مدرسة بقيق الثانوية']
+    },
+    'النعيرية': {
+      supervisors: ['حمد بن علي الخالدي'],
+      assignedSchools: ['مدرسة النعيرية الابتدائية'],
+      additionalSchools: ['مدرسة النعيرية الثانوية']
+    },
+    'قرية العليا': {
+      supervisors: ['عبدالله بن راشد العتيبي'],
+      assignedSchools: ['مدرسة قرية العليا الابتدائية'],
+      additionalSchools: ['مدرسة قرية العليا المتوسطة']
+    },
+    'الخفجي': {
+      supervisors: ['علي بن محمد القحطاني'],
+      assignedSchools: ['مدرسة الخفجي الابتدائية'],
+      additionalSchools: ['مدرسة الخفجي الثانوية']
+    },
+    'حفر الباطن': {
+      supervisors: ['فهد بن عبدالعزيز السبيعي'],
+      assignedSchools: ['مدرسة حفر الباطن الابتدائية'],
+      additionalSchools: ['مدرسة حفر الباطن المتوسطة']
+    }
+  };
+
+  /**
+   * تعريف المجالات التي سيتم تقييمها. كل مجال يحتوى على عنصر واحد كما في النماذج السابقة.
+   */
+  const domains = [
+    { name: 'نواتج التعلم', items: ['نواتج التعلم'] },
+    { name: 'التدريس', items: ['التدريس'] },
+    { name: 'النشاط الطلابي', items: ['النشاط الطلابي'] },
+    { name: 'التوجيه الطلابي', items: ['التوجيه الطلابي'] }
+  ];
+
+  // مصفوفة النصوص المقابلة للقيم 1، 2، 3 في تقييم المجالات
   const levelLabels = ['ضعيف', 'متوسط', 'متميز'];
-  // كائن لحفظ قيم التقييم
+
+  // كائن لحفظ التقييمات لكل مجال
   const evaluationData = {};
 
   /**
-   * بناء جدول التقييم من المجالات.
+   * إنشاء جدول التقييم ووضع أزرار الاختيار لكل عنصر.
    */
   function buildEvaluationTable() {
     const table = document.getElementById('evaluationTable');
-    // رأس الجدول
+    const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    headerRow.innerHTML = '<th>م</th><th>المجال</th><th>العنصر</th><th>مستوى الأداء</th>';
-    table.appendChild(headerRow);
+    headerRow.innerHTML = '<th>المجال</th><th>المستوى</th>';
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
     domains.forEach((domain, dIndex) => {
+      // لكل مجال نضيف صف
+      const row = document.createElement('tr');
+      const nameCell = document.createElement('td');
+      nameCell.textContent = domain.name;
+      row.appendChild(nameCell);
+      const levelCell = document.createElement('td');
       domain.items.forEach((item, iIndex) => {
-        const row = document.createElement('tr');
-        const tdNo = document.createElement('td');
-        tdNo.textContent = (dIndex + 1).toString();
-        row.appendChild(tdNo);
-        // اسم المجال
-        const tdDomain = document.createElement('td');
-        tdDomain.textContent = domain.name;
-        row.appendChild(tdDomain);
-        // اسم العنصر (لكل مجال عنصر واحد)
-        const tdItem = document.createElement('td');
-        tdItem.textContent = item;
-        row.appendChild(tdItem);
-        // أزرار التقييم
-        const tdOptions = document.createElement('td');
         const container = document.createElement('div');
-        container.className = 'option-buttons';
-        levelLabels.forEach((label, levelIndex) => {
-          const btn = document.createElement('button');
-          btn.textContent = label;
-          btn.addEventListener('click', function() {
-            setLevel(dIndex, iIndex, levelIndex + 1, btn, container);
-          });
-          container.appendChild(btn);
+        container.style.display = 'flex';
+        container.style.gap = '5px';
+        levelLabels.forEach((label, level) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = label;
+          button.className = 'level-btn';
+          button.dataset.domainIndex = dIndex;
+          button.dataset.itemIndex = iIndex;
+          button.dataset.level = level + 1;
+          button.addEventListener('click', () => setLevel(dIndex, iIndex, level + 1, button));
+          container.appendChild(button);
         });
-        tdOptions.appendChild(container);
-        row.appendChild(tdOptions);
-        table.appendChild(row);
+        levelCell.appendChild(container);
       });
+      row.appendChild(levelCell);
+      tbody.appendChild(row);
     });
+    table.appendChild(tbody);
   }
 
   /**
-   * تعيين قيمة التقييم وتحديث حالة الأزرار.
+   * تعيين المستوى عند اختيار زر في جدول التقييم.
+   * يحفظ التحديد ويقوم بتمييز الزر المختار.
    */
-  function setLevel(dIndex, iIndex, level, btn, container) {
-    if (!evaluationData[dIndex]) evaluationData[dIndex] = {};
-    evaluationData[dIndex][iIndex] = level;
-    Array.from(container.children).forEach(function(b) {
-      b.classList.remove('selected');
+  function setLevel(domainIndex, itemIndex, level, button) {
+    if (!evaluationData[domainIndex]) {
+      evaluationData[domainIndex] = {};
+    }
+    evaluationData[domainIndex][itemIndex] = level;
+    // إزالة التحديد السابق لهذا الصف
+    const parentDiv = button.parentElement;
+    Array.from(parentDiv.children).forEach(btn => {
+      btn.classList.remove('selected');
     });
-    btn.classList.add('selected');
+    button.classList.add('selected');
   }
 
   /**
-   * جمع بيانات النموذج في كائن واحد.
+   * تعبئة القوائم (القطاع، الأسبوع) بقيمها عند تحميل الصفحة.
+   */
+  function populateLists() {
+    const sectorSelect = document.getElementById('sector');
+    sectors.forEach(s => {
+      const option = document.createElement('option');
+      option.value = s;
+      option.textContent = s;
+      sectorSelect.appendChild(option);
+    });
+    const weekSelect = document.getElementById('week');
+    weeks.forEach(w => {
+      const option = document.createElement('option');
+      option.value = w;
+      option.textContent = w;
+      weekSelect.appendChild(option);
+    });
+  }
+
+  /**
+   * تحديث القوائم المتعلقة بالقطاع عند تغييره.
+   */
+  function updateSectorData() {
+    const sector = document.getElementById('sector').value;
+    const supervisorSelect = document.getElementById('supervisor');
+    const assignedSchoolSelect = document.getElementById('assignedSchool');
+    const additionalSchoolSelect = document.getElementById('additionalSchool');
+    // تفريغ القوائم الحالية
+    supervisorSelect.innerHTML = '<option value="">اختر المشرف/ة</option>';
+    assignedSchoolSelect.innerHTML = '<option value="">اختر المدرسة</option>';
+    additionalSchoolSelect.innerHTML = '<option value="">اختر المدرسة الإضافية</option>';
+    if (!sectorData[sector]) return;
+    const data = sectorData[sector];
+    data.supervisors.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      supervisorSelect.appendChild(opt);
+    });
+    data.assignedSchools.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      assignedSchoolSelect.appendChild(opt);
+    });
+    data.additionalSchools.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      additionalSchoolSelect.appendChild(opt);
+    });
+  }
+
+  /**
+   * جمع بيانات النموذج وتحويلها إلى كائن.
    */
   function collectFormData() {
-    return {
-      id: Date.now(),
-      sector: document.getElementById('sector').value.trim(),
-      date: document.getElementById('date').value,
-      day: document.getElementById('day').value.trim(),
-      week: document.getElementById('week').value.trim(),
-      supervisor: document.getElementById('supervisor').value.trim(),
-      mission: document.getElementById('mission').value.trim(),
-      school: document.getElementById('school').value.trim(),
-      serviceType: document.getElementById('serviceType').value.trim(),
-      schoolType: document.getElementById('schoolType').value.trim(),
-      educationStage: document.getElementById('educationStage').value.trim(),
-      additionalSchool: document.getElementById('additionalSchool').value.trim(),
-      assignedSchoolName: document.getElementById('assignedSchoolName').value.trim(),
-      madrasati: document.getElementById('madrasati').value,
-      attendanceTime: document.getElementById('attendanceTime').value,
-      departureTime: document.getElementById('departureTime').value,
-      supervisoryExperiences: document.getElementById('supervisoryExperiences').value.trim(),
-      initiatives: document.getElementById('initiatives').value.trim(),
-      recommendations: document.getElementById('recommendations').value.trim(),
-      proposals: document.getElementById('proposals').value.trim(),
-      supportAreas: document.getElementById('supportAreas').value.trim(),
-      challenges: document.getElementById('challenges').value.trim(),
-      remedies: document.getElementById('remedies').value.trim(),
-      selfEvaluation: document.getElementById('selfEvaluation').value,
-      yourView: document.getElementById('yourView').value.trim(),
-      empowerment: document.getElementById('empowerment').value.trim(),
-      evaluation: JSON.parse(JSON.stringify(evaluationData))
-    };
+    const data = {};
+    data.sector = document.getElementById('sector').value;
+    data.week = document.getElementById('week').value;
+    data.date = document.getElementById('date').value;
+    data.mission = document.getElementById('mission').value;
+    data.supervisor = document.getElementById('supervisor').value;
+    data.gender = document.getElementById('gender').value;
+    data.educationStage = document.getElementById('educationStage').value;
+    data.assignedSchool = document.getElementById('assignedSchool').value;
+    data.additionalSchool = document.getElementById('additionalSchool').value;
+    data.madrasati = document.getElementById('madrasati').value;
+    data.attendanceTime = document.getElementById('attendanceTime').value;
+    data.departureTime = document.getElementById('departureTime').value;
+    // تقييم المجالات
+    domains.forEach((domain, dIndex) => {
+      const level = evaluationData[dIndex] && evaluationData[dIndex][0];
+      data['eval_' + domain.name] = level || '';
+    });
+    // نصوص إضافية
+    data.initiatives = document.getElementById('initiatives').value;
+    data.recommendations = document.getElementById('recommendations').value;
+    data.proposals = document.getElementById('proposals').value;
+    data.supportAreas = document.getElementById('supportAreas').value;
+    data.challenges = document.getElementById('challenges').value;
+    data.remedies = document.getElementById('remedies').value;
+    data.selfEvaluation = document.getElementById('selfEvaluation').value;
+    data.yourView = document.getElementById('yourView').value;
+    data.empowerment = document.getElementById('empowerment').value;
+    return data;
   }
 
   /**
-   * حفظ سجل التقرير في localStorage.
+   * حفظ سجل النموذج في التخزين المحلي تحت المفتاح weeklyReportRecords.
    */
   function saveRecord() {
-    const record = collectFormData();
-    if (!record.supervisor || !record.school) {
-      alert('يرجى تعبئة المشرف والمدرسة قبل الحفظ.');
-      return;
-    }
-    const records = JSON.parse(localStorage.getItem('dailyReportRecords') || '[]');
-    records.push(record);
-    localStorage.setItem('dailyReportRecords', JSON.stringify(records));
-    alert('تم حفظ التقرير بنجاح!');
+    const data = collectFormData();
+    const records = JSON.parse(localStorage.getItem('weeklyReportRecords') || '[]');
+    records.push(data);
+    localStorage.setItem('weeklyReportRecords', JSON.stringify(records));
+    alert('تم حفظ التقرير بنجاح.');
     resetForm();
   }
 
   /**
-   * إعادة تعيين البيانات للنموذج.
+   * إعادة تعيين النموذج وإفراغ التقييمات.
    */
   function resetForm() {
-    // اعادة تعيين الحقول النصية
-    document.querySelectorAll('.form-grid input, .form-grid select').forEach(function(input) {
-      if (input.type === 'date' || input.type === 'time') {
-        input.value = '';
-      } else {
-        input.value = '';
-      }
-    });
-    document.querySelectorAll('textarea').forEach(function(tx) { tx.value = ''; });
+    document.querySelector('form');
+    // إعادة تعيين الحقول
+    document.getElementById('sector').value = '';
+    document.getElementById('week').value = '';
+    document.getElementById('date').value = '';
+    document.getElementById('mission').value = '';
+    document.getElementById('supervisor').innerHTML = '<option value="">اختر المشرف/ة</option>';
+    document.getElementById('gender').value = '';
+    document.getElementById('educationStage').value = '';
+    document.getElementById('assignedSchool').innerHTML = '<option value="">اختر المدرسة</option>';
+    document.getElementById('additionalSchool').innerHTML = '<option value="">اختر المدرسة الإضافية</option>';
+    document.getElementById('madrasati').value = '';
+    document.getElementById('attendanceTime').value = '';
+    document.getElementById('departureTime').value = '';
+    document.getElementById('initiatives').value = '';
+    document.getElementById('recommendations').value = '';
+    document.getElementById('proposals').value = '';
+    document.getElementById('supportAreas').value = '';
+    document.getElementById('challenges').value = '';
+    document.getElementById('remedies').value = '';
     document.getElementById('selfEvaluation').value = '';
-    // إعادة تعيين التقييم
-    Object.keys(evaluationData).forEach(function(key) { delete evaluationData[key]; });
-    const selectedButtons = document.querySelectorAll('#evaluationTable .selected');
-    selectedButtons.forEach(function(btn) { btn.classList.remove('selected'); });
+    document.getElementById('yourView').value = '';
+    document.getElementById('empowerment').value = '';
+    // مسح التحديدات في جدول التقييم
+    Object.keys(evaluationData).forEach(key => delete evaluationData[key]);
+    document.querySelectorAll('.level-btn').forEach(btn => btn.classList.remove('selected'));
   }
 
   /**
-   * تصدير السجلات إلى ملف Excel.
+   * تصدير كافة السجلات من التخزين المحلي إلى ملف Excel.
    */
   function exportToExcel() {
-    const records = JSON.parse(localStorage.getItem('dailyReportRecords') || '[]');
+    const records = JSON.parse(localStorage.getItem('weeklyReportRecords') || '[]');
     if (records.length === 0) {
-      alert('لا توجد سجلات للتصدير.');
+      alert('لا توجد تقارير محفوظة للتصدير.');
       return;
     }
-    const aoa = [];
-    // العناوين الأساسية
-    const header = [
-      'القطاع','التاريخ','اليوم','الأسبوع','المشرف','المهمة','المدرسة','نوع الخدمة','نوع المدرسة','المرحلة الدراسية','المدرسة الإضافية','اسم المدرسة المكلفة','تفعيل منصة مدرستي','وقت الحضور','وقت الانصراف'
+    // إعداد رأس الجدول
+    const headers = [
+      'القطاع','الأسبوع الدراسي','التاريخ','المهمة','المشرف/ة','النوع','المرحلة الدراسية',
+      'المدرسة','المدرسة الإضافية','تفعيل منصة مدرستي','وقت الحضور','وقت الانصراف'
     ];
-    // عناوين التقييم لكل مجال
     domains.forEach(domain => {
-      header.push(domain.name);
+      headers.push('تقييم ' + domain.name);
     });
-    // عناوين الحقول النصية الأخرى
-    header.push('الخبرات الاشرافية','المبادرات المنفذة','التوصيات المقدمة','المقترحات للفريق التنفيذي','مجالات الدعم','أبرز التحديات','أبرز المعالجات','التقييم الذاتي','وجهة نظرك','تمكين المدرسة');
-    aoa.push(header);
+    headers.push('المبادرات المنفذة','التوصيات','المقترحات','مجالات الدعم','أبرز التحديات','أبرز المعالجات','التقييم الذاتي','وجهة نظرك','تمكين المدرسة');
+    const aoa = [headers];
     records.forEach(rec => {
-      const row = [
-        rec.sector,
-        rec.date,
-        rec.day,
-        rec.week,
-        rec.supervisor,
-        rec.mission,
-        rec.school,
-        rec.serviceType,
-        rec.schoolType,
-        rec.educationStage,
-        rec.additionalSchool,
-        rec.assignedSchoolName,
-        rec.madrasati,
-        rec.attendanceTime,
-        rec.departureTime
-      ];
-      domains.forEach((domain, dIndex) => {
-        const levelValue = (rec.evaluation && rec.evaluation[dIndex] && rec.evaluation[dIndex][0]) || '';
-        row.push(levelValue);
+      const row = [];
+      row.push(rec.sector);
+      row.push(rec.week);
+      row.push(rec.date);
+      row.push(rec.mission);
+      row.push(rec.supervisor);
+      row.push(rec.gender);
+      row.push(rec.educationStage);
+      row.push(rec.assignedSchool);
+      row.push(rec.additionalSchool);
+      row.push(rec.madrasati);
+      row.push(rec.attendanceTime);
+      row.push(rec.departureTime);
+      domains.forEach(domain => {
+        const val = rec['eval_' + domain.name];
+        row.push(val ? levelLabels[val - 1] : '');
       });
-      row.push(
-        rec.supervisoryExperiences,
-        rec.initiatives,
-        rec.recommendations,
-        rec.proposals,
-        rec.supportAreas,
-        rec.challenges,
-        rec.remedies,
-        rec.selfEvaluation,
-        rec.yourView,
-        rec.empowerment
-      );
+      row.push(rec.initiatives);
+      row.push(rec.recommendations);
+      row.push(rec.proposals);
+      row.push(rec.supportAreas);
+      row.push(rec.challenges);
+      row.push(rec.remedies);
+      row.push(rec.selfEvaluation ? levelLabels[rec.selfEvaluation - 1] : '');
+      row.push(rec.yourView);
+      row.push(rec.empowerment);
       aoa.push(row);
     });
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    XLSX.utils.book_append_sheet(wb, ws, 'تقارير');
-    XLSX.writeFile(wb, 'daily_report3_records.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'التقارير');
+    XLSX.writeFile(wb, 'weekly_report_records.xlsx');
   }
 
   /**
-   * طباعة تقرير واحد (الحالي في النموذج).
+   * طباعة تقرير واحد بناءً على البيانات الحالية في النموذج.
    */
   function printReport() {
     const data = collectFormData();
     let html = '';
-    html += '<html dir="rtl"><head><title>تقرير يومي دعم التميز المدرسي-٣</title>';
-    html += '<style>body{font-family:Tajawal,Arial,sans-serif;direction:rtl;padding:20px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #ccc;padding:4px 6px;text-align:center;} th{background:#e8f4f1;}</style>';
+    html += '<html dir="rtl"><head><title>تقرير متابعة أسبوعي</title>';
+    html += '<style>body{font-family:Tajawal,Arial,sans-serif;direction:rtl;padding:20px;} table{width:100%;border-collapse:collapse;margin-top:10px;} th,td{border:1px solid #ccc;padding:4px 6px;text-align:center;} th{background:#eaf4f3;}</style>';
     html += '</head><body>';
-    html += '<h2>تقرير يومي دعم التميز المدرسي-٣</h2>';
-    html += '<p><strong>المشرف:</strong> ' + data.supervisor + '</p>';
-    html += '<p><strong>المدرسة:</strong> ' + data.school + '</p>';
-    html += '<p><strong>التاريخ:</strong> ' + data.date + '</p>';
+    html += '<h2>تقرير متابعة أسبوعي</h2>';
+    function addLine(label, value) {
+      if (value) html += '<p><strong>' + label + ':</strong> ' + value + '</p>';
+    }
+    addLine('القطاع', data.sector);
+    addLine('الأسبوع الدراسي', data.week);
+    addLine('التاريخ', data.date);
+    addLine('المهمة', data.mission);
+    addLine('المشرف/ة', data.supervisor);
+    addLine('النوع', data.gender);
+    addLine('المرحلة الدراسية', data.educationStage);
+    addLine('المدرسة', data.assignedSchool);
+    addLine('المدرسة الإضافية', data.additionalSchool);
+    addLine('تفعيل منصة مدرستي', data.madrasati);
+    addLine('وقت الحضور', data.attendanceTime);
+    addLine('وقت الانصراف', data.departureTime);
+    // جدول التقييم
     html += '<h3>تقييم المجالات</h3>';
     html += '<table><thead><tr><th>المجال</th><th>التقييم</th></tr></thead><tbody>';
-    domains.forEach((domain, dIndex) => {
-      const levelValue = evaluationData[dIndex] && evaluationData[dIndex][0];
-      const levelText = levelValue ? levelLabels[levelValue - 1] : '';
+    domains.forEach(domain => {
+      const val = data['eval_' + domain.name];
+      const levelText = val ? levelLabels[val - 1] : '';
       html += '<tr><td>' + domain.name + '</td><td>' + levelText + '</td></tr>';
     });
     html += '</tbody></table>';
     html += '<h3>تفاصيل أخرى</h3>';
-    function addLine(label, value) {
-      if (value) html += '<p><strong>' + label + ':</strong> ' + value + '</p>';
-    }
-    addLine('الخبرات الاشرافية', data.supervisoryExperiences);
     addLine('المبادرات المنفذة', data.initiatives);
-    addLine('التوصيات المقدمة', data.recommendations);
-    addLine('المقترحات للفريق التنفيذي', data.proposals);
+    addLine('التوصيات', data.recommendations);
+    addLine('المقترحات', data.proposals);
     addLine('مجالات الدعم', data.supportAreas);
     addLine('أبرز التحديات', data.challenges);
     addLine('أبرز المعالجات', data.remedies);
@@ -248,7 +419,9 @@
 
   // ربط الأحداث عند تحميل الصفحة
   document.addEventListener('DOMContentLoaded', function() {
+    populateLists();
     buildEvaluationTable();
+    document.getElementById('sector').addEventListener('change', updateSectorData);
     document.getElementById('saveButton').addEventListener('click', saveRecord);
     document.getElementById('exportButton').addEventListener('click', exportToExcel);
     document.getElementById('printButton').addEventListener('click', printReport);
